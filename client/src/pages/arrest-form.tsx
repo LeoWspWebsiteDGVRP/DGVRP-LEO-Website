@@ -679,7 +679,7 @@ export default function ArrestForm() {
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <FormField
                           control={form.control}
-                          name={`officerBadges.${index}`}
+                          name={`officerBadges.${index}` as const}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">Badge #:</FormLabel>
