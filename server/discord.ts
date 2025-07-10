@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, TextChannel, EmbedBuilder } from 'discord.js';
+import { Client, GatewayIntentBits, TextChannel, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 
 export interface DiscordBotService {
   sendCitationReport: (data: any) => Promise<void>;
@@ -233,6 +233,12 @@ Please call (262) 785-4700 ext. 7 for further inquiry.`;
     const warrantNeeded = remainingSeconds > 0 ? "**Yes**" : "**No**";
     const timeNeededForWarrant = remainingSeconds > 0 ? `**${remainingSeconds} Seconds**` : "**0 Seconds**";
 
+    // Check if there's a mugshot but no description
+    const shouldIncludeMugshot = data.mugshotBase64 && !data.description;
+    
+    // Update the description text based on whether we have an image
+    const descriptionText = data.description || (shouldIncludeMugshot ? 'See attached mugshot' : 'No description provided');
+
     const arrestMessage = `**Arrest Report**
 
 Officer's Username: ${officerUsernames}
@@ -241,7 +247,7 @@ Ranks: ${officerRanks}
 Badge Number: ${badgeNumbers}
 
 Description/Mugshot
-**${data.description || 'No description provided'}**
+**${descriptionText}**
 
 —
 Offense: 
@@ -264,7 +270,32 @@ Court date: **${data.courtDate}**
 Please call **${data.courtPhone}** for further inquiry.`;
 
     console.log("📨 Sending arrest message:", arrestMessage);
-    await channel.send(arrestMessage);
+
+    // Prepare message options
+    const messageOptions: any = { content: arrestMessage };
+
+    // Add image attachment if mugshot exists and no description
+    if (shouldIncludeMugshot) {
+      try {
+        // Convert base64 to buffer
+        const base64Data = data.mugshotBase64.replace(/^data:image\/[a-z]+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        
+        // Create attachment
+        const attachment = new AttachmentBuilder(imageBuffer, { 
+          name: 'mugshot.png',
+          description: 'Arrest report mugshot'
+        });
+        
+        messageOptions.files = [attachment];
+        console.log("📸 Including mugshot attachment in arrest report");
+      } catch (error) {
+        console.error("❌ Failed to process mugshot image:", error);
+        // Continue without the image if there's an error
+      }
+    }
+
+    await channel.send(messageOptions);
   }
 
 }

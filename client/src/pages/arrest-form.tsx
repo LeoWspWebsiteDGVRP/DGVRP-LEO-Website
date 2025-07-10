@@ -256,7 +256,12 @@ export default function ArrestForm() {
 
   const submitMutation = useMutation({
     mutationFn: async (data: ArrestFormData) => {
-      const response = await apiRequest("POST", "/api/arrests", data);
+      // Include the base64 image data if there's an uploaded image but no description
+      const submitData = {
+        ...data,
+        mugshotBase64: (!data.description && uploadedImage) ? uploadedImage : undefined
+      };
+      const response = await apiRequest("POST", "/api/arrests", submitData);
       return response.json();
     },
     onSuccess: () => {
