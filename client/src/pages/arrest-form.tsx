@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2, Check, ChevronsUpDown, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AuthError } from "@/components/ui/auth-error";
 
 const arrestFormSchema = z.object({
   // Officer Information
@@ -23,11 +23,11 @@ const arrestFormSchema = z.object({
   officerUsernames: z.array(z.string().min(1, "Officer username is required")).min(1, "At least one officer username is required").max(3, "Maximum 3 officers allowed"),
   officerRanks: z.array(z.string().min(1, "Officer rank is required")).min(1, "At least one officer rank is required").max(3, "Maximum 3 officers allowed"),
   officerUserIds: z.array(z.string().min(1, "Officer Discord User ID is required")).min(1, "At least one officer Discord User ID is required").max(3, "Maximum 3 officers allowed"),
-  
+
   // Description/Mugshot
   description: z.string().optional(),
   mugshotFile: z.any().optional(),
-  
+
   // Offense Information
   penalCodes: z.array(z.string().min(1, "Penal code is required")).min(1, "At least one penal code is required"),
   amountsDue: z.array(z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid amount format")).min(1, "At least one amount is required"),
@@ -35,12 +35,12 @@ const arrestFormSchema = z.object({
   totalAmount: z.string().default("0.00"),
   totalJailTime: z.string().default("0 Seconds"),
   timeServed: z.boolean().default(false),
-  
+
   // Additional Information
   courtDate: z.string().default("XX/XX/XX"),
   courtLocation: z.string().default("4000 Capitol Drive, Greenville, Wisconsin 54942"),
   courtPhone: z.string().default("(262) 785-4700 ext. 7"),
-  
+
   // Signatures
   suspectSignature: z.string().min(1, "Suspect signature is required"),
   officerSignatures: z.array(z.string().min(1, "Officer signature is required")).min(1, "At least one officer signature is required"),
@@ -230,6 +230,7 @@ export default function ArrestForm() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [showClearDialog, setShowClearDialog] = useState(false);
+  const [authError, setAuthError] = useState<any>(null);
   const { toast } = useToast();
 
   const form = useForm<ArrestFormData>({
@@ -267,7 +268,7 @@ export default function ArrestForm() {
           const validRanks = (parsedData.officerRanks || []).filter((rank: any) => rank !== null && rank !== undefined);
           const validUserIds = (parsedData.officerUserIds || []).filter((userId: any) => userId !== null && userId !== undefined);
           const validSignatures = (parsedData.officerSignatures || []).filter((sig: any) => sig !== null && sig !== undefined);
-          
+
           if (validBadges.length > 0) {
             // Create officer fields based on the actual number of valid entries
             const newOfficerFields = validBadges.map((_: any, index: number) => ({
@@ -277,14 +278,14 @@ export default function ArrestForm() {
               rank: validRanks[index] || "",
               userId: validUserIds[index] || ""
             }));
-            
+
             setOfficerFields(newOfficerFields);
             form.setValue("officerBadges", validBadges);
             form.setValue("officerUsernames", validUsernames.slice(0, validBadges.length));
             form.setValue("officerRanks", validRanks.slice(0, validBadges.length));
             form.setValue("officerUserIds", validUserIds.slice(0, validBadges.length));
             form.setValue("officerSignatures", validSignatures.slice(0, validBadges.length));
-            
+
             console.log('✅ Loaded officer data:', { 
               count: newOfficerFields.length, 
               badges: validBadges,
@@ -305,14 +306,14 @@ export default function ArrestForm() {
     const rawRanks = form.getValues("officerRanks") || [];
     const rawUserIds = form.getValues("officerUserIds") || [];
     const rawSignatures = form.getValues("officerSignatures") || [];
-    
+
     // Filter out null/undefined values to prevent empty officer sections
     const validBadges = rawBadges.filter(badge => badge !== null && badge !== undefined);
     const validUsernames = rawUsernames.filter(username => username !== null && username !== undefined);
     const validRanks = rawRanks.filter(rank => rank !== null && rank !== undefined);
     const validUserIds = rawUserIds.filter(userId => userId !== null && userId !== undefined);
     const validSignatures = rawSignatures.filter(sig => sig !== null && sig !== undefined);
-    
+
     const officerData = {
       officerFields,
       officerBadges: validBadges,
@@ -365,8 +366,19 @@ export default function ArrestForm() {
       }, 1000);
     },
     onError: (error: any) => {
+      console.error("Arrest report submission failed:", error);
+
+      // Check if it's an authentication error
+      if (error.status === 401 || error.status === 403) {
+        setAuthError(error.data || { 
+          error: 'Authentication error', 
+          message: 'You do not have permission to access this application.' 
+        });
+        return;
+      }
+
       toast({
-        title: "Submission Failed",
+        title: "Error",
         description: error.message || "Failed to submit arrest report. Please try again.",
         variant: "destructive",
       });
@@ -410,7 +422,7 @@ export default function ArrestForm() {
       const seconds = parseInt(jailTime.replace(" Seconds", "")) || 0;
       return sum + seconds;
     }, 0);
-    const totalJailTimeString = `${totalSeconds} Seconds`;
+    const totalJailTimeString = `${totalSeconds} Seconds`;```python
     form.setValue("totalJailTime", totalJailTimeString);
     return totalJailTimeString;
   };
@@ -443,32 +455,32 @@ export default function ArrestForm() {
           : field
       );
       setPenalCodeFields(updatedFields);
-      
+
       const currentPenalCodes = form.getValues("penalCodes");
       const currentAmounts = form.getValues("amountsDue");
       const currentJailTimes = form.getValues("jailTimes");
-      
+
       currentPenalCodes[index] = selectedCode;
       currentAmounts[index] = option.amount;
       currentJailTimes[index] = option.jailTime;
-      
+
       form.setValue("penalCodes", currentPenalCodes);
       form.setValue("amountsDue", currentAmounts);
       form.setValue("jailTimes", currentJailTimes);
-      
+
       setTimeout(() => {
         calculateTotal();
         calculateTotalJailTime();
       }, 0);
     }
-    
+
     setOpenComboboxes(prev => ({ ...prev, [index]: false }));
   };
 
   const addPenalCodeField = () => {
     const newId = (penalCodeFields.length + 1).toString();
     setPenalCodeFields([...penalCodeFields, { id: newId, penalCode: "", amountDue: "", jailTime: "" }]);
-    
+
     const currentPenalCodes = form.getValues("penalCodes");
     const currentAmounts = form.getValues("amountsDue");
     const currentJailTimes = form.getValues("jailTimes");
@@ -481,7 +493,7 @@ export default function ArrestForm() {
     if (penalCodeFields.length > 1) {
       const newFields = penalCodeFields.filter((_, i) => i !== index);
       setPenalCodeFields(newFields);
-      
+
       const currentPenalCodes = form.getValues("penalCodes");
       const currentAmounts = form.getValues("amountsDue");
       const currentJailTimes = form.getValues("jailTimes");
@@ -502,12 +514,12 @@ export default function ArrestForm() {
       const currentUsernames = form.getValues("officerUsernames");
       const currentRanks = form.getValues("officerRanks");
       const currentUserIds = form.getValues("officerUserIds");
-      
+
       form.setValue("officerBadges", [...currentBadges, ""]);
       form.setValue("officerUsernames", [...currentUsernames, ""]);
       form.setValue("officerRanks", [...currentRanks, ""]);
       form.setValue("officerUserIds", [...currentUserIds, ""]);
-      
+
       // Add signature field for new officer
       const currentSignatures = form.getValues("officerSignatures");
       form.setValue("officerSignatures", [...currentSignatures, ""]);
@@ -529,12 +541,12 @@ export default function ArrestForm() {
       const currentUsernames = form.getValues("officerUsernames");
       const currentRanks = form.getValues("officerRanks");
       const currentUserIds = form.getValues("officerUserIds");
-      
+
       form.setValue("officerBadges", currentBadges.filter((_, i) => i !== index));
       form.setValue("officerUsernames", currentUsernames.filter((_, i) => i !== index));
       form.setValue("officerRanks", currentRanks.filter((_, i) => i !== index));
       form.setValue("officerUserIds", currentUserIds.filter((_, i) => i !== index));
-      
+
       // Remove signature field for removed officer
       const currentSignatures = form.getValues("officerSignatures");
       form.setValue("officerSignatures", currentSignatures.filter((_, i) => i !== index));
@@ -560,16 +572,16 @@ export default function ArrestForm() {
     const currentOfficerUsernames = form.getValues("officerUsernames");
     const currentOfficerRanks = form.getValues("officerRanks");
     const currentOfficerUserIds = form.getValues("officerUserIds");
-    
+
     // Reset the form
     form.reset();
-    
+
     // Restore officer information
     form.setValue("officerBadges", currentOfficerBadges);
     form.setValue("officerUsernames", currentOfficerUsernames);
     form.setValue("officerRanks", currentOfficerRanks);
     form.setValue("officerUserIds", currentOfficerUserIds);
-    
+
     // Reset only non-officer fields
     setPenalCodeFields([{ id: "1", penalCode: "", amountDue: "", jailTime: "" }]);
     form.setValue("penalCodes", [""]);
@@ -581,12 +593,12 @@ export default function ArrestForm() {
     form.setValue("timeServed", false);
     form.setValue("suspectSignature", "");
     form.setValue("officerSignatures", [""]);  // Reset to single signature
-    
+
     // Clear image upload
     setUploadedImage(null);
     setImageFile(null);
     form.setValue("mugshotFile", undefined);
-    
+
     // Keep court information as defaults
     form.setValue("courtDate", "XX/XX/XX");
     form.setValue("courtLocation", "4000 Capitol Drive, Greenville, Wisconsin 54942");
@@ -608,13 +620,25 @@ export default function ArrestForm() {
     submitMutation.mutate(data);
   };
 
+  if (authError) {
+    return (
+      <AuthError 
+        error={authError} 
+        onRetry={() => {
+          setAuthError(null);
+          window.location.reload();
+        }} 
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: "var(--law-primary)" }}>
       <div className="max-w-4xl mx-auto">
         <Card className="law-card shadow-2xl">
           <CardContent className="p-8">
             <h1 className="text-white text-2xl font-semibold text-center mb-2">Arrest Report</h1>
-            
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
@@ -732,7 +756,7 @@ export default function ArrestForm() {
                 {/* Description/Mugshot Section */}
                 <div>
                   <h3 className="text-white text-lg font-semibold mb-4 underline">Description/Mugshot</h3>
-                  
+
                   {/* Image Upload */}
                   <div className="mb-4">
                     {!uploadedImage ? (
@@ -798,7 +822,7 @@ export default function ArrestForm() {
                 {/* Offense Section */}
                 <div>
                   <h3 className="text-white text-lg font-semibold mb-4 underline">Offense:</h3>
-                  
+
                   {penalCodeFields.map((field, index) => (
                     <div key={field.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <FormField
@@ -881,7 +905,7 @@ export default function ArrestForm() {
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name={`amountsDue.${index}`}
@@ -905,7 +929,7 @@ export default function ArrestForm() {
                                   />
                                 </div>
                               )}
-                              
+
                               <div className="relative flex-1">
                                 <Input
                                   type="text"
@@ -915,7 +939,7 @@ export default function ArrestForm() {
                                   className="law-input text-white bg-slate-700"
                                 />
                               </div>
-                              
+
                               {penalCodeFields.length > 1 && (
                                 <Button
                                   type="button"
@@ -1007,7 +1031,7 @@ export default function ArrestForm() {
                                 render={({ field }) => {
                                   const currentSeconds = parseInt((field.value || "0 Seconds").replace(" Seconds", "")) || 0;
                                   const maxSeconds = getCalculatedJailTime();
-                                  
+
                                   return (
                                     <FormItem>
                                       <FormControl>
@@ -1187,6 +1211,7 @@ export default function ArrestForm() {
                             readOnly
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -1201,7 +1226,7 @@ export default function ArrestForm() {
                   >
                     {submitMutation.isPending ? "Submitting..." : "Submit Arrest Report"}
                   </Button>
-                  
+
                   <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -1232,7 +1257,7 @@ export default function ArrestForm() {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                  
+
                   <AlertDialog open={showBackDialog} onOpenChange={setShowBackDialog}>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -1248,8 +1273,7 @@ export default function ArrestForm() {
                         <AlertDialogTitle className="text-white">Go Back to Home</AlertDialogTitle>
                         <AlertDialogDescription className="text-slate-300">
                           Are you sure you want to go back to the home page? Any unsaved changes will be lost.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
+                        </AlertDialogDescription></AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel className="bg-slate-600 hover:bg-slate-500 text-white border-slate-500">
                           Cancel

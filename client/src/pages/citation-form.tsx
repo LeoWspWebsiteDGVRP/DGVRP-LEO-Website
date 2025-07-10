@@ -16,6 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { insertCitationSchema } from "@shared/schema";
 import { Trash2, Plus, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AuthError } from "@/components/ui/auth-error";
 
 const formSchema = insertCitationSchema.extend({
   penalCodes: z.array(z.string().min(1, "Penal code is required")).min(1, "At least one penal code is required"),
@@ -148,6 +149,7 @@ export default function CitationForm() {
   ]);
   const [openComboboxes, setOpenComboboxes] = useState<{ [key: string]: boolean }>({});
   const [showClearDialog, setShowClearDialog] = useState(false);
+  const [authError, setAuthError] = useState<any>(null);
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -179,7 +181,7 @@ export default function CitationForm() {
           const validUsernames = (parsedData.officerUsernames || []).filter((username: any) => username !== null && username !== undefined);
           const validRanks = (parsedData.officerRanks || []).filter((rank: any) => rank !== null && rank !== undefined);
           const validUserIds = (parsedData.officerUserIds || []).filter((userId: any) => userId !== null && userId !== undefined);
-          
+
           if (validBadges.length > 0) {
             // Create officer fields based on the actual number of valid entries
             const newOfficerFields = validBadges.map((_: any, index: number) => ({
@@ -189,13 +191,13 @@ export default function CitationForm() {
               rank: validRanks[index] || "",
               userId: validUserIds[index] || ""
             }));
-            
+
             setOfficerFields(newOfficerFields);
             form.setValue("officerBadges", validBadges);
             form.setValue("officerUsernames", validUsernames.slice(0, validBadges.length));
             form.setValue("officerRanks", validRanks.slice(0, validBadges.length));
             form.setValue("officerUserIds", validUserIds.slice(0, validBadges.length));
-            
+
             console.log('✅ Loaded officer data:', { 
               count: newOfficerFields.length, 
               badges: validBadges,
@@ -215,13 +217,13 @@ export default function CitationForm() {
     const rawUsernames = form.getValues("officerUsernames") || [];
     const rawRanks = form.getValues("officerRanks") || [];
     const rawUserIds = form.getValues("officerUserIds") || [];
-    
+
     // Filter out null/undefined values to prevent empty officer sections
     const validBadges = rawBadges.filter(badge => badge !== null && badge !== undefined);
     const validUsernames = rawUsernames.filter(username => username !== null && username !== undefined);
     const validRanks = rawRanks.filter(rank => rank !== null && rank !== undefined);
     const validUserIds = rawUserIds.filter(userId => userId !== null && userId !== undefined);
-    
+
     const officerData = {
       officerFields,
       officerBadges: validBadges,
@@ -254,11 +256,11 @@ export default function CitationForm() {
   const submitMutation = useMutation({
     mutationFn: async (data: FormData) => {
       console.log("🚀 Mutation starting with data:", data);
-      
+
       try {
         const response = await apiRequest("POST", "/api/citations", data);
         console.log("📡 API Response status:", response.status);
-        
+
         if (!response.ok) {
           const errorText = await response.text();
           console.error("❌ API Error response:", errorText);
@@ -270,12 +272,20 @@ export default function CitationForm() {
           }
           throw new Error(errorData.message || "Failed to submit citation");
         }
-        
+
         const result = await response.json();
         console.log("✅ API Success response:", result);
         return result;
-      } catch (error) {
+      } catch (error: any) {
         console.error("🔥 Mutation error:", error);
+         // Check if it's an authentication error
+         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          // Authentication error
+          throw {
+              status: error.response.status,
+              data: error.response.data || { message: "You are not authorized." }
+          };
+      }
         throw error;
       }
     },
@@ -299,7 +309,17 @@ export default function CitationForm() {
       }, 1000);
     },
     onError: (error: any) => {
-      console.error("❌ Mutation error:", error);
+      console.error("Citation submission failed:", error);
+
+      // Check if it's an authentication error
+      if (error.status === 401 || error.status === 403) {
+        setAuthError(error.data || { 
+          error: 'Authentication error', 
+          message: 'You do not have permission to access this application.' 
+        });
+        return;
+      }
+
       toast({
         title: "❌ Submission Failed",
         description: error.message || "Failed to submit citation. Please check your connection and try again.",
@@ -318,7 +338,7 @@ export default function CitationForm() {
     return total.toFixed(2);
   };
 
-  
+
 
 
 
@@ -381,7 +401,7 @@ export default function CitationForm() {
       const currentUsernames = form.getValues("officerUsernames");
       const currentRanks = form.getValues("officerRanks");
       const currentUserIds = form.getValues("officerUserIds");
-      
+
       form.setValue("officerBadges", [...currentBadges, ""]);
       form.setValue("officerUsernames", [...currentUsernames, ""]);
       form.setValue("officerRanks", [...currentRanks, ""]);
@@ -404,7 +424,7 @@ export default function CitationForm() {
       const currentUsernames = form.getValues("officerUsernames");
       const currentRanks = form.getValues("officerRanks");
       const currentUserIds = form.getValues("officerUserIds");
-      
+
       form.setValue("officerBadges", currentBadges.filter((_, i) => i !== index));
       form.setValue("officerUsernames", currentUsernames.filter((_, i) => i !== index));
       form.setValue("officerRanks", currentRanks.filter((_, i) => i !== index));
@@ -429,16 +449,16 @@ export default function CitationForm() {
     const currentOfficerUsernames = form.getValues("officerUsernames");
     const currentOfficerRanks = form.getValues("officerRanks");
     const currentOfficerUserIds = form.getValues("officerUserIds");
-    
+
     // Reset the form
     form.reset();
-    
+
     // Restore officer information
     form.setValue("officerBadges", currentOfficerBadges);
     form.setValue("officerUsernames", currentOfficerUsernames);
     form.setValue("officerRanks", currentOfficerRanks);
     form.setValue("officerUserIds", currentOfficerUserIds);
-    
+
     // Reset only non-officer fields
     setPenalCodeFields([{ id: "1", penalCode: "", amountDue: ""}]);
     form.setValue("penalCodes", [""]);
@@ -465,7 +485,7 @@ export default function CitationForm() {
 
   const onSubmit = (data: FormData) => {
     console.log("🎯 Form submitted with data:", data);
-    
+
     // Validate required fields before processing
     if (!data.violatorUsername || data.violatorUsername.trim() === "") {
       toast({
@@ -489,7 +509,7 @@ export default function CitationForm() {
     const validOfficerBadges = data.officerBadges.filter(badge => badge && badge.trim() !== "");
     const validOfficerUsernames = data.officerUsernames.filter(username => username && username.trim() !== "");
     const validOfficerRanks = data.officerRanks.filter(rank => rank && rank.trim() !== "");
-    
+
     if (validOfficerBadges.length === 0) {
       toast({
         title: "❌ Validation Error",
@@ -502,7 +522,7 @@ export default function CitationForm() {
     // Validate that we have at least one penal code
     const validPenalCodes = data.penalCodes.filter(code => code && code.trim() !== "");
     const validAmountsDue = data.amountsDue.filter(amount => amount && amount.trim() !== "");
-    
+
     if (validPenalCodes.length === 0) {
       toast({
         title: "❌ Validation Error",
@@ -526,12 +546,24 @@ export default function CitationForm() {
       violatorSignature: data.violatorSignature.trim(),
       additionalNotes: data.additionalNotes || "",
     };
-    
+
     console.log("🚀 Processed citation data for submission:", processedData);
-    
+
     // Submit the mutation
     submitMutation.mutate(processedData);
   };
+
+  if (authError) {
+    return (
+      <AuthError 
+        error={authError} 
+        onRetry={() => {
+          setAuthError(null);
+          window.location.reload();
+        }} 
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen p-4" style={{ backgroundColor: "var(--law-primary)" }}>
