@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -275,7 +275,7 @@ export default function ArrestForm() {
   }, []);
 
   // Function to save officer data to localStorage
-  const saveOfficerData = () => {
+  const saveOfficerData = useCallback(() => {
     const officerData = {
       officerFields,
       officerBadges: form.getValues("officerBadges"),
@@ -285,22 +285,26 @@ export default function ArrestForm() {
       officerSignatures: form.getValues("officerSignatures")
     };
     localStorage.setItem('lawEnforcementOfficerData', JSON.stringify(officerData));
-  };
+    console.log('💾 Saved officer data to localStorage:', officerData);
+  }, [officerFields, form]);
 
   // Save officer data to localStorage whenever officer data changes
   useEffect(() => {
-    saveOfficerData();
-  }, [officerFields]);
+    if (officerFields.length > 0) {
+      saveOfficerData();
+    }
+  }, [officerFields, saveOfficerData]);
 
   // Also save when form values change
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name?.startsWith('officer')) {
-        saveOfficerData();
+        console.log('👀 Officer field changed:', name, 'value:', value[name]);
+        setTimeout(() => saveOfficerData(), 100); // Small delay to ensure form state is updated
       }
     });
     return () => subscription.unsubscribe();
-  }, [form.watch]);
+  }, [form, saveOfficerData]);
 
   const submitMutation = useMutation({
     mutationFn: async (data: ArrestFormData) => {

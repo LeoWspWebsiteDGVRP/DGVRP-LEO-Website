@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -187,7 +187,7 @@ export default function CitationForm() {
   }, []);
 
   // Function to save officer data to localStorage
-  const saveOfficerData = () => {
+  const saveOfficerData = useCallback(() => {
     const officerData = {
       officerFields,
       officerBadges: form.getValues("officerBadges"),
@@ -196,22 +196,26 @@ export default function CitationForm() {
       officerUserIds: form.getValues("officerUserIds")
     };
     localStorage.setItem('lawEnforcementOfficerData', JSON.stringify(officerData));
-  };
+    console.log('💾 Saved officer data to localStorage:', officerData);
+  }, [officerFields, form]);
 
   // Save officer data to localStorage whenever officer data changes
   useEffect(() => {
-    saveOfficerData();
-  }, [officerFields]);
+    if (officerFields.length > 0) {
+      saveOfficerData();
+    }
+  }, [officerFields, saveOfficerData]);
 
   // Also save when form values change
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name?.startsWith('officer')) {
-        saveOfficerData();
+        console.log('👀 Officer field changed:', name, 'value:', value[name]);
+        setTimeout(() => saveOfficerData(), 100); // Small delay to ensure form state is updated
       }
     });
     return () => subscription.unsubscribe();
-  }, [form.watch]);
+  }, [form, saveOfficerData]);
 
   const submitMutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -560,6 +564,10 @@ export default function CitationForm() {
                                     // Only allow numbers
                                     const value = e.target.value.replace(/[^0-9]/g, '');
                                     formField.onChange(value);
+                                    // Update officer fields state
+                                    const newFields = [...officerFields];
+                                    newFields[index] = { ...newFields[index], badge: value };
+                                    setOfficerFields(newFields);
                                   }}
                                 />
                               </FormControl>
@@ -579,6 +587,13 @@ export default function CitationForm() {
                                   className="law-input text-white"
                                   placeholder="Ex: P.Popfork1"
                                   {...formField}
+                                  onChange={(e) => {
+                                    formField.onChange(e.target.value);
+                                    // Update officer fields state
+                                    const newFields = [...officerFields];
+                                    newFields[index] = { ...newFields[index], username: e.target.value };
+                                    setOfficerFields(newFields);
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -597,6 +612,13 @@ export default function CitationForm() {
                                   className="law-input text-white"
                                   placeholder="Ex: Sergeant"
                                   {...formField}
+                                  onChange={(e) => {
+                                    formField.onChange(e.target.value);
+                                    // Update officer fields state
+                                    const newFields = [...officerFields];
+                                    newFields[index] = { ...newFields[index], rank: e.target.value };
+                                    setOfficerFields(newFields);
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -615,6 +637,13 @@ export default function CitationForm() {
                                   className="law-input text-white"
                                   placeholder="Ex: 1132477120665370674"
                                   {...formField}
+                                  onChange={(e) => {
+                                    formField.onChange(e.target.value);
+                                    // Update officer fields state
+                                    const newFields = [...officerFields];
+                                    newFields[index] = { ...newFields[index], userId: e.target.value };
+                                    setOfficerFields(newFields);
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
