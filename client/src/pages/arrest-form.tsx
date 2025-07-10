@@ -591,7 +591,7 @@ export default function ArrestForm() {
                               <FormControl>
                                 <Input
                                   className="law-input text-blue-400 font-semibold"
-                                  placeholder="P.popfork1"
+                                  placeholder="Ex: P.Popfork1"
                                   {...formField}
                                 />
                               </FormControl>
@@ -609,7 +609,7 @@ export default function ArrestForm() {
                               <FormControl>
                                 <Input
                                   className="law-input text-white"
-                                  placeholder="Sergeant"
+                                  placeholder="Ex: Sergeant"
                                   {...formField}
                                 />
                               </FormControl>
@@ -627,7 +627,7 @@ export default function ArrestForm() {
                               <FormControl>
                                 <Input
                                   className="law-input text-blue-400 font-semibold"
-                                  placeholder="1132477120665370674"
+                                  placeholder="Ex: 1132477120665370674"
                                   {...formField}
                                 />
                               </FormControl>
@@ -693,7 +693,7 @@ export default function ArrestForm() {
                           <FormLabel className="text-white font-medium">Description (required if no mugshot)</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="—Suit, Brown hair, Blocky."
+                              placeholder="Ex: Suit, Brown hair, Blocky."
                               className="law-input text-white placeholder:text-slate-400 resize-vertical"
                               rows={3}
                               {...field}
@@ -804,7 +804,7 @@ export default function ArrestForm() {
                             <div className="flex gap-2">
                               {(!penalCodeFields[index]?.amountDue || penalCodeFields[index]?.amountDue !== "0.00") && (
                                 <div className="relative flex-1">
-                                  <span className="absolute left-3 top-3 text-slate-300">$</span>
+                                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-300 pointer-events-none">$</span>
                                   <Input
                                     type="number"
                                     step="0.01"
@@ -1014,7 +1014,7 @@ export default function ArrestForm() {
                         <FormControl>
                           <Input
                             className="law-input text-blue-400 font-semibold"
-                            placeholder="1132477120665370674"
+                            placeholder="Ex: 1132477120665370674"
                             {...field}
                           />
                         </FormControl>
@@ -1037,7 +1037,7 @@ export default function ArrestForm() {
                           <FormControl>
                             <Input
                               className="law-input text-white"
-                              placeholder="1132477120665370674"
+                              placeholder="Ex: 1132477120665370674"
                               {...formField}
                             />
                           </FormControl>

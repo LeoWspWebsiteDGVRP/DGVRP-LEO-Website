@@ -693,7 +693,7 @@ export default function CitationForm() {
                             <FormLabel className="text-white font-medium">Amount Due:</FormLabel>
                             <div className="flex gap-2">
                               <div className="relative flex-1">
-                                <span className="absolute left-3 top-3 text-slate-300">$</span>
+                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-300 pointer-events-none">$</span>
                                 <Input
                                   type="number"
                                   step="0.01"
