@@ -422,7 +422,7 @@ export default function ArrestForm() {
       const seconds = parseInt(jailTime.replace(" Seconds", "")) || 0;
       return sum + seconds;
     }, 0);
-    ```typescript
+    
     const totalJailTimeString = `${totalSeconds} Seconds`;
     form.setValue("totalJailTime", totalJailTimeString);
     return totalJailTimeString;
