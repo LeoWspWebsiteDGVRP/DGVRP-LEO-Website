@@ -18,7 +18,7 @@ class DiscordAuthService {
 
   constructor(token: string, guildId: string, requiredRoles: string[] = []) {
     this.client = new Client({
-      intents: [GatewayIntentBits.Guilds]
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
     });
     this.guildId = guildId;
     this.requiredRoles = requiredRoles;

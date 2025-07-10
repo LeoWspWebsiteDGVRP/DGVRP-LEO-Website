@@ -422,8 +422,7 @@ export default function ArrestForm() {
       const seconds = parseInt(jailTime.replace(" Seconds", "")) || 0;
       return sum + seconds;
     }, 0);
-    
-    const totalJailTimeString = `${totalSeconds} Seconds`;
+    const totalJailTimeString = `${totalSeconds} Seconds`;```python
     form.setValue("totalJailTime", totalJailTimeString);
     return totalJailTimeString;
   };
@@ -680,7 +679,7 @@ export default function ArrestForm() {
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <FormField
                           control={form.control}
-                          name={`officerBadges.${index}` as const}
+                          name={`officerBadges.${index}`}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">Badge #:</FormLabel>
@@ -698,7 +697,7 @@ export default function ArrestForm() {
 
                         <FormField
                           control={form.control}
-                          name={`officerUsernames.${index}` as `officerUsernames.${number}`}
+                          name={`officerUsernames.${index}`}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">RP Name:</FormLabel>
@@ -716,7 +715,7 @@ export default function ArrestForm() {
 
                         <FormField
                           control={form.control}
-                          name={`officerRanks.${index}` as `officerRanks.${number}`}
+                          name={`officerRanks.${index}`}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">Rank:</FormLabel>
@@ -734,7 +733,7 @@ export default function ArrestForm() {
 
                         <FormField
                           control={form.control}
-                          name={`officerUserIds.${index}` as `officerUserIds.${number}`}
+                          name={`officerUserIds.${index}`}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">Discord User ID:</FormLabel>
@@ -828,7 +827,7 @@ export default function ArrestForm() {
                     <div key={field.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <FormField
                         control={form.control}
-                        name={`penalCodes.${index}` as `penalCodes.${number}`}
+                        name={`penalCodes.${index}`}
                         render={({ field: formField }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel className="text-white font-medium">Penal Code:</FormLabel>
@@ -909,7 +908,7 @@ export default function ArrestForm() {
 
                       <FormField
                         control={form.control}
-                        name={`amountsDue.${index}` as `amountsDue.${number}`}
+                        name={`amountsDue.${index}`}
                         render={({ field: formField }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel className="text-white font-medium">
@@ -1142,7 +1141,7 @@ export default function ArrestForm() {
                     <FormField
                       key={`officer-signature-${field.id}`}
                       control={form.control}
-                      name={`officerSignatures.${index}` as `officerSignatures.${number}`}
+                      name={`officerSignatures.${index}`}
                       render={({ field: formField }) => (
                         <FormItem>
                           <FormLabel className="text-white font-medium">

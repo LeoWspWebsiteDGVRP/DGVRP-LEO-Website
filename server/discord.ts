@@ -13,7 +13,7 @@ class DiscordBotServiceImpl implements DiscordBotService {
 
   constructor(token: string, channelId: string) {
     this.client = new Client({
-      intents: [GatewayIntentBits.Guilds]
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]
     });
     this.channelId = channelId;
 
