@@ -116,9 +116,12 @@ Preferred communication style: Simple, everyday language.
 ## Changelog
 
 Changelog:
-- July 10, 2025. Enhanced Discord integration for arrest reports:
+- July 10, 2025. Enhanced Discord integration and dynamic officer signatures:
   - Added image upload support with base64 encoding to Discord
   - Fixed "request entity too large" error by increasing server limit to 10MB
   - Added auto-dismiss for success notifications after 5 seconds
   - Images now attach to Discord when no description provided
+  - Implemented dynamic officer signature boxes that scale with number of officers
+  - Updated arrest form to support multiple officer signatures (array-based)
+  - Modified Discord service to handle multiple officer signatures with proper labeling
 - July 02, 2025. Initial setup

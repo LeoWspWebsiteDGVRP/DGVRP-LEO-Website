@@ -43,7 +43,7 @@ const arrestFormSchema = z.object({
   
   // Signatures
   suspectSignature: z.string().min(1, "Suspect signature is required"),
-  officerSignature: z.string().min(1, "Officer signature is required"),
+  officerSignatures: z.array(z.string().min(1, "Officer signature is required")).min(1, "At least one officer signature is required"),
 }).refine((data) => {
   return data.description || data.mugshotFile;
 }, {
@@ -250,7 +250,7 @@ export default function ArrestForm() {
       courtLocation: "4000 Capitol Drive, Greenville, Wisconsin 54942",
       courtPhone: "(262) 785-4700 ext. 7",
       suspectSignature: "",
-      officerSignature: "",
+      officerSignatures: [""],
     },
   });
 
@@ -418,6 +418,10 @@ export default function ArrestForm() {
       form.setValue("officerUsernames", [...currentUsernames, ""]);
       form.setValue("officerRanks", [...currentRanks, ""]);
       form.setValue("officerUserIds", [...currentUserIds, ""]);
+      
+      // Add signature field for new officer
+      const currentSignatures = form.getValues("officerSignatures");
+      form.setValue("officerSignatures", [...currentSignatures, ""]);
     } else {
       toast({
         title: "Maximum Officers Reached",
@@ -441,6 +445,10 @@ export default function ArrestForm() {
       form.setValue("officerUsernames", currentUsernames.filter((_, i) => i !== index));
       form.setValue("officerRanks", currentRanks.filter((_, i) => i !== index));
       form.setValue("officerUserIds", currentUserIds.filter((_, i) => i !== index));
+      
+      // Remove signature field for removed officer
+      const currentSignatures = form.getValues("officerSignatures");
+      form.setValue("officerSignatures", currentSignatures.filter((_, i) => i !== index));
     }
   };
 
@@ -483,7 +491,7 @@ export default function ArrestForm() {
     form.setValue("description", "");
     form.setValue("timeServed", false);
     form.setValue("suspectSignature", "");
-    form.setValue("officerSignature", "");
+    form.setValue("officerSignatures", [""]);  // Reset to single signature
     
     // Clear image upload
     setUploadedImage(null);
@@ -1015,23 +1023,29 @@ export default function ArrestForm() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="officerSignature"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white font-medium">Arresting officer signature X (Discored User ID):</FormLabel>
-                        <FormControl>
-                          <Input
-                            className="law-input text-white"
-                            placeholder="1132477120665370674"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Officer Signatures - Dynamic based on number of officers */}
+                  {officerFields.map((field, index) => (
+                    <FormField
+                      key={`officer-signature-${field.id}`}
+                      control={form.control}
+                      name={`officerSignatures.${index}`}
+                      render={({ field: formField }) => (
+                        <FormItem>
+                          <FormLabel className="text-white font-medium">
+                            {index === 0 ? "Arresting" : "Assisting"} Officer #{index + 1} Signature (Discord User ID):
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              className="law-input text-white"
+                              placeholder="1132477120665370674"
+                              {...formField}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
                 </div>
 
                 {/* Court Information */}

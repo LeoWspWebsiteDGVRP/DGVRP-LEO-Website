@@ -209,21 +209,17 @@ Please call (262) 785-4700 ext. 7 for further inquiry.`;
 
     const formattedTotalAmount = parseFloat(data.totalAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     
-    // Format officer signature as Discord ping if it's a valid user ID
-    const officerSignature = data.officerSignature && data.officerSignature.match(/^\d+$/) 
-      ? `<@${data.officerSignature}>` 
-      : `**${data.officerSignature}**`;
-    
     // Format suspect signature as Discord ping if it's a valid user ID
     const suspectSignature = data.suspectSignature && data.suspectSignature.match(/^\d+$/) 
       ? `<@${data.suspectSignature}>` 
       : `**${data.suspectSignature}**`;
     
-    // Format multiple officer signatures based on number of officers
-    const officerSignatures = data.officerUserIds.map((userId: string, index: number) => {
+    // Format multiple officer signatures based on number of officers and their signatures
+    const officerSignatures = data.officerSignatures.map((signature: string, index: number) => {
       const username = data.officerUsernames[index];
-      const signature = userId && userId.match(/^\d+$/) ? `<@${userId}>` : `**${username}**`;
-      return `Arresting officer signature X: ${signature}`;
+      const formattedSignature = signature && signature.match(/^\d+$/) ? `<@${signature}>` : `**${signature}**`;
+      const title = index === 0 ? "Arresting officer signature X" : `Assisting officer #${index + 1} signature X`;
+      return `${title}: ${formattedSignature}`;
     }).join('\n');
     
     // Calculate warrant information
