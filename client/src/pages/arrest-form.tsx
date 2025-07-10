@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Plus, Trash2, Check, ChevronsUpDown, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AuthError } from "@/components/ui/auth-error";
+import { AuthError } from "../components/ui/auth-error";
 
 const arrestFormSchema = z.object({
   // Officer Information
@@ -698,7 +698,7 @@ export default function ArrestForm() {
 
                         <FormField
                           control={form.control}
-                          name={`officerUsernames.${index}` as `officerUsernames.${number}`}
+                          name={`officerUsernames.${index}` as any}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">RP Name:</FormLabel>
@@ -716,7 +716,7 @@ export default function ArrestForm() {
 
                         <FormField
                           control={form.control}
-                          name={`officerRanks.${index}` as `officerRanks.${number}`}
+                          name={`officerRanks.${index}` as any}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">Rank:</FormLabel>
@@ -734,7 +734,7 @@ export default function ArrestForm() {
 
                         <FormField
                           control={form.control}
-                          name={`officerUserIds.${index}` as `officerUserIds.${number}`}
+                          name={`officerUserIds.${index}` as any}
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel className="text-white font-medium">Discord User ID:</FormLabel>
@@ -828,7 +828,7 @@ export default function ArrestForm() {
                     <div key={field.id} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <FormField
                         control={form.control}
-                        name={`penalCodes.${index}` as `penalCodes.${number}`}
+                        name={`penalCodes.${index}` as any}
                         render={({ field: formField }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel className="text-white font-medium">Penal Code:</FormLabel>
@@ -909,7 +909,7 @@ export default function ArrestForm() {
 
                       <FormField
                         control={form.control}
-                        name={`amountsDue.${index}` as `amountsDue.${number}`}
+                        name={`amountsDue.${index}` as any}
                         render={({ field: formField }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel className="text-white font-medium">
@@ -1142,7 +1142,7 @@ export default function ArrestForm() {
                     <FormField
                       key={`officer-signature-${field.id}`}
                       control={form.control}
-                      name={`officerSignatures.${index}` as `officerSignatures.${number}`}
+                      name={`officerSignatures.${index}` as any}
                       render={({ field: formField }) => (
                         <FormItem>
                           <FormLabel className="text-white font-medium">
