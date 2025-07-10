@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -149,6 +149,52 @@ export default function CitationForm() {
   const [openComboboxes, setOpenComboboxes] = useState<{ [key: string]: boolean }>({});
   const [showClearDialog, setShowClearDialog] = useState(false);
   const { toast } = useToast();
+
+  // Load saved officer data from localStorage on component mount
+  useEffect(() => {
+    const savedOfficerData = localStorage.getItem('lawEnforcementOfficerData');
+    if (savedOfficerData) {
+      try {
+        const parsedData = JSON.parse(savedOfficerData);
+        if (parsedData.officerFields && parsedData.officerFields.length > 0) {
+          setOfficerFields(parsedData.officerFields);
+          form.setValue("officerBadges", parsedData.officerBadges || [""]);
+          form.setValue("officerUsernames", parsedData.officerUsernames || [""]);
+          form.setValue("officerRanks", parsedData.officerRanks || [""]);
+          form.setValue("officerUserIds", parsedData.officerUserIds || [""]);
+        }
+      } catch (error) {
+        console.error('Failed to load saved officer data:', error);
+      }
+    }
+  }, []);
+
+  // Function to save officer data to localStorage
+  const saveOfficerData = () => {
+    const officerData = {
+      officerFields,
+      officerBadges: form.getValues("officerBadges"),
+      officerUsernames: form.getValues("officerUsernames"),
+      officerRanks: form.getValues("officerRanks"),
+      officerUserIds: form.getValues("officerUserIds")
+    };
+    localStorage.setItem('lawEnforcementOfficerData', JSON.stringify(officerData));
+  };
+
+  // Save officer data to localStorage whenever officer data changes
+  useEffect(() => {
+    saveOfficerData();
+  }, [officerFields]);
+
+  // Also save when form values change
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name?.startsWith('officer')) {
+        saveOfficerData();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -756,7 +802,7 @@ export default function CitationForm() {
                         <FormControl>
                           <Input
                             className="law-input text-blue-400 font-semibold"
-                            placeholder="Ex: username123"
+                            placeholder="Ex: 1132477120665370674"
                             {...field}
                           />
                         </FormControl>
