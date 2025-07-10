@@ -209,7 +209,7 @@ export default function CitationForm() {
         console.error('Failed to load saved officer data:', error);
       }
     }
-  }, [form]);
+  }, []);
 
   // Function to save officer data to localStorage
   const saveOfficerData = useCallback(() => {
