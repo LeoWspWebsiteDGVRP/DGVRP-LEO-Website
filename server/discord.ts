@@ -194,11 +194,170 @@ Please call (262) 785-4700 ext. 7 for further inquiry.`;
     // Format badge numbers with bold formatting
     const badgeNumbers = data.officerBadges.map((badge: string) => `**${badge}**`).join(', ');
 
-    // Format penal codes with bold formatting
+    // Comprehensive penal code descriptions for arrest reports
+    const arrestPenalCodeDescriptions = {
+      // Section 1 - Crimes Against Persons
+      "(1)01": "Criminal Threats",
+      "(1)02": "Assault",
+      "(1)03": "Battery",
+      "(1)04": "Assault with a Deadly Weapon",
+      "(1)05": "Attempted Murder",
+      "(1)06": "Manslaughter",
+      "(1)07": "Vehicular Manslaughter",
+      "(1)08": "Murder",
+      "(1)09": "Kidnapping",
+      "(1)10": "Mayhem",
+      "(1)11": "Torture",
+      "(1)12": "Aggravated Assault",
+      "(1)13": "Armed Robbery",
+      "(1)14": "Unarmed Robbery",
+      "(1)15": "Grand Theft Person",
+      "(1)16": "Carjacking",
+      "(1)17": "Rape",
+      "(1)18": "Statutory Rape",
+      "(1)19": "Lewd and Lascivious Acts with a Minor",
+      "(1)20": "Indecent Exposure",
+      "(1)21": "Prostitution",
+      "(1)22": "Pandering/Pimping",
+      "(1)23": "Sexual Battery",
+      "(1)24": "Stalking",
+      "(1)25": "Human Trafficking",
+
+      // Section 2 - Crimes Against Property
+      "(2)01": "Arson",
+      "(2)02": "Vandalism/Defacing Property",
+      "(2)03": "Trespassing",
+      "(2)04": "Burglary",
+      "(2)05": "Robbery",
+      "(2)06": "Shoplifting",
+      "(2)07": "Grand Theft",
+      "(2)08": "Petty Theft",
+      "(2)09": "Grand Theft Auto",
+      "(2)10": "Joyriding",
+      "(2)11": "Fraud",
+      "(2)12": "Forgery",
+      "(2)13": "Identity Theft",
+      "(2)14": "Embezzlement",
+      "(2)15": "Loitering",
+      "(2)16": "Prowling",
+
+      // Section 3 - Crimes Against Public Decency & Morals
+      "(3)01": "Disturbing the Peace",
+      "(3)02": "Disorderly Conduct",
+      "(3)03": "Public Intoxication",
+      "(3)04": "Under the Influence of a Controlled Substance",
+      "(3)05": "Public Indecency",
+      "(3)06": "Soliciting Prostitution",
+      "(3)07": "Lewd Conduct",
+
+      // Section 4 - Crimes Against Public Justice
+      "(4)01": "Bribery",
+      "(4)02": "Perjury",
+      "(4)03": "Failure to Identify to a Peace Officer",
+      "(4)04": "Impersonating a Public Official",
+      "(4)05": "Impersonating a Peace Officer",
+      "(4)06": "Filing a False Police Report",
+      "(4)07": "False Information to a Peace Officer",
+      "(4)08": "Accessory After the Fact",
+      "(4)09": "Conspiracy",
+      "(4)10": "Prisoner Breakout",
+      "(4)11": "Misuse of Government Hotline",
+      "(4)12": "Tampering with Evidence",
+      "(4)13": "Introduction of Contraband",
+      "(4)14": "False Arrest",
+      "(4)15": "Assault on a Peace Officer",
+      "(4)16": "Obstruction of Justice",
+      "(4)17": "Disorderly Conduct",
+      "(4)18": "Failure to Comply with a Lawful Order",
+      "(4)19": "Aiding and Abetting",
+
+      // Section 5 - Public Disturbance
+      "(5)01": "Disturbing the Peace",
+      "(5)02": "Unlawful Assembly",
+      "(5)03": "Inciting Riot",
+
+      // Section 6 - Drug Related
+      "(6)04": "Maintaining a Place for the Purpose of Distribution",
+      "(6)05": "Manufacture of a Controlled Substance",
+      "(6)06": "Sale of a Controlled Substance",
+      "(6)08": "Under the Influence of a Controlled Substance",
+      "(6)09": "Detention of Mentally Disordered Persons",
+
+      // Section 7 - Animal/Child
+      "(7)01": "Animal Abuse / Cruelty",
+      "(7)04": "Child Endangerment",
+
+      // Section 8 - Traffic Violations
+      "(8)01": "Invalid / No Vehicle Registration / Insurance",
+      "(8)02": "Driving Without a License",
+      "(8)03": "Driving With a Suspended or Revoked License",
+      "(8)04": "Accident Reporting Requirements - Property Damage",
+      "(8)05": "Accident Reporting Requirements - Injury or Death",
+      "(8)06": "Failure to Obey Traffic Signal",
+      "(8)07": "Driving Opposite Direction",
+      "(8)08": "Failure to Maintain Lane",
+      "(8)09": "Unsafe Following Distance",
+      "(8)10": "Failure to Yield to Civilian",
+      "(8)11": "Failure to Yield to Emergency Vehicles",
+      "(8)12": "Unsafe Turn",
+      "(8)13": "Unsafe Lane Change",
+      "(8)14": "Illegal U-Turn",
+      "(8)15": "Speeding (5-15 MPH Over)",
+      "(8)16": "Speeding (16-25 MPH Over)",
+      "(8)17": "Speeding (26+ MPH Over)",
+      "(8)18": "Felony Speeding (100 MPH+)",
+      "(8)19": "Unreasonably Slow / Stopped",
+      "(8)20": "Failure to Obey Stop Sign / RED LIGHT",
+      "(8)21": "Illegally Parked",
+      "(8)22": "Reckless Driving",
+      "(8)23": "Street Racing",
+      "(8)24": "Throwing Objects",
+      "(8)25": "Operating While Intoxicated",
+      "(8)26": "Evading a Peace Officer",
+      "(8)29": "Felony Evading a Peace Officer",
+      "(8)30": "Road Rage",
+      "(8)31": "Littering",
+      "(8)32": "Unsafe Speed for Conditions",
+      "(8)33": "Hogging Passing Lane",
+      "(8)34": "Impeding Traffic",
+      "(8)35": "Jaywalking",
+      "(8)36": "Unnecessary Use of Horn",
+      "(8)37": "Excessive Music / Engine Sounds",
+      "(8)38": "Failure to Sign Citation",
+      "(8)39": "Failure to Yield to Pedestrian",
+      "(8)40": "Distracted Driving",
+      "(8)41": "Driving on Shoulder / Emergency Lane",
+      "(8)42": "Move Over Law",
+      "(8)43": "Driving Without Headlights",
+      "(8)44": "Hit and Run",
+      "(8)45": "Attempted Vehicular Manslaughter",
+      "(8)46": "Vehicular Manslaughter",
+      "(8)47": "Reckless Evasion",
+      "(8)48": "Possession of a Stolen Vehicle",
+      "(8)49": "Reckless Endangerments",
+      "(8)50": "Unroadworthy Vehicle",
+      "(8)51": "Drifting on a Public Road",
+      "(8)52": "Failure to Control Vehicle",
+      "(8)53": "Unsafe Parking (Parking Ticket)",
+      "(8)54": "Failure to Use Turn Signal",
+      "(8)55": "Failure to Display License Plate (W/ only)",
+
+      // Section 9 - Weapons
+      "(9)01": "Possession of an Illegal Weapon",
+      "(9)02": "Brandishing a Firearm",
+      "(9)03": "Illegal Discharge of a Firearm",
+      "(9)04": "Unlicensed Possession of a Firearm",
+      "(9)05": "Possession of a Stolen Weapon",
+      "(9)06": "Unlawful Distribution of a Firearm",
+    };
+
+    // Format penal codes with descriptions, jail time, and amounts
     const penalCodes = data.penalCodes.map((code: string, index: number) => {
+      const description = arrestPenalCodeDescriptions[code] || "Unknown Offense";
       const jailTime = data.jailTimes[index];
       const amount = data.amountsDue[index];
-      let line = `**${code}**`;
+      
+      let line = `**${code}** - **${description}**`;
       if (jailTime && jailTime !== 'None') line += ` - **${jailTime}**`;
       if (amount && amount !== '0.00') {
         const formattedAmount = parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
