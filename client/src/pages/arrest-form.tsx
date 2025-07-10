@@ -268,6 +268,7 @@ export default function ArrestForm() {
       toast({
         title: "Arrest Report Submitted",
         description: "The arrest report has been successfully submitted.",
+        duration: 5000, // Auto-dismiss after 5 seconds
       });
       // Clear form after successful submission but keep officer info
       setTimeout(() => {

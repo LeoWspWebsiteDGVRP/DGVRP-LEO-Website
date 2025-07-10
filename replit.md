@@ -116,4 +116,9 @@ Preferred communication style: Simple, everyday language.
 ## Changelog
 
 Changelog:
+- July 10, 2025. Enhanced Discord integration for arrest reports:
+  - Added image upload support with base64 encoding to Discord
+  - Fixed "request entity too large" error by increasing server limit to 10MB
+  - Added auto-dismiss for success notifications after 5 seconds
+  - Images now attach to Discord when no description provided
 - July 02, 2025. Initial setup

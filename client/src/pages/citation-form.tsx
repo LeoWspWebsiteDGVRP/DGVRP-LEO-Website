@@ -207,6 +207,7 @@ export default function CitationForm() {
       toast({
         title: "✅ Citation Submitted Successfully!",
         description: "The citation has been processed and sent to Discord.",
+        duration: 5000, // Auto-dismiss after 5 seconds
       });
       // Clear form after successful submission but keep officer info
       setTimeout(() => {
