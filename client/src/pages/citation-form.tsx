@@ -150,6 +150,23 @@ export default function CitationForm() {
   const [showClearDialog, setShowClearDialog] = useState(false);
   const { toast } = useToast();
 
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      officerBadges: [""],
+      officerUsernames: [""],
+      officerRanks: [""],
+      officerUserIds: [""],
+      violatorUsername: "",
+      violatorSignature: "",
+      violationType: "Citation",
+      penalCodes: [""],
+      amountsDue: [""],
+      totalAmount: "0.00",
+      additionalNotes: "",
+    },
+  });
+
   // Load saved officer data from localStorage on component mount
   useEffect(() => {
     const savedOfficerData = localStorage.getItem('lawEnforcementOfficerData');
@@ -195,23 +212,6 @@ export default function CitationForm() {
     });
     return () => subscription.unsubscribe();
   }, [form.watch]);
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      officerBadges: [""],
-      officerUsernames: [""],
-      officerRanks: [""],
-      officerUserIds: [""],
-      violatorUsername: "",
-      violatorSignature: "",
-      violationType: "Citation",
-      penalCodes: [""],
-      amountsDue: [""],
-      totalAmount: "0.00",
-      additionalNotes: "",
-    },
-  });
 
   const submitMutation = useMutation({
     mutationFn: async (data: FormData) => {

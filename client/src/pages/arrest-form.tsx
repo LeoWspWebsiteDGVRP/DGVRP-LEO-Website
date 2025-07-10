@@ -232,6 +232,28 @@ export default function ArrestForm() {
   const [showClearDialog, setShowClearDialog] = useState(false);
   const { toast } = useToast();
 
+  const form = useForm<ArrestFormData>({
+    resolver: zodResolver(arrestFormSchema),
+    defaultValues: {
+      officerBadges: [""],
+      officerUsernames: [""],
+      officerRanks: [""],
+      officerUserIds: [""],
+      description: "",
+      penalCodes: [""],
+      amountsDue: [""],
+      jailTimes: [""],
+      totalAmount: "0.00",
+      totalJailTime: "0 Seconds",
+      timeServed: false,
+      courtDate: "XX/XX/XX",
+      courtLocation: "4000 Capitol Drive, Greenville, Wisconsin 54942",
+      courtPhone: "(262) 785-4700 ext. 7",
+      suspectSignature: "",
+      officerSignatures: [""],
+    },
+  });
+
   // Load saved officer data from localStorage on component mount
   useEffect(() => {
     const savedOfficerData = localStorage.getItem('lawEnforcementOfficerData');
@@ -279,28 +301,6 @@ export default function ArrestForm() {
     });
     return () => subscription.unsubscribe();
   }, [form.watch]);
-
-  const form = useForm<ArrestFormData>({
-    resolver: zodResolver(arrestFormSchema),
-    defaultValues: {
-      officerBadges: [""],
-      officerUsernames: [""],
-      officerRanks: [""],
-      officerUserIds: [""],
-      description: "",
-      penalCodes: [""],
-      amountsDue: [""],
-      jailTimes: [""],
-      totalAmount: "0.00",
-      totalJailTime: "0 Seconds",
-      timeServed: false,
-      courtDate: "XX/XX/XX",
-      courtLocation: "4000 Capitol Drive, Greenville, Wisconsin 54942",
-      courtPhone: "(262) 785-4700 ext. 7",
-      suspectSignature: "",
-      officerSignatures: [""],
-    },
-  });
 
   const submitMutation = useMutation({
     mutationFn: async (data: ArrestFormData) => {
