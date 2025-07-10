@@ -560,17 +560,12 @@ export default function ArrestForm() {
     const currentOfficerUsernames = form.getValues("officerUsernames");
     const currentOfficerRanks = form.getValues("officerRanks");
     const currentOfficerUserIds = form.getValues("officerUserIds");
+    const currentOfficerSignatures = form.getValues("officerSignatures");
     
-    // Reset the form
-    form.reset();
+    // Save current officer fields state
+    const currentOfficerFields = [...officerFields];
     
-    // Restore officer information
-    form.setValue("officerBadges", currentOfficerBadges);
-    form.setValue("officerUsernames", currentOfficerUsernames);
-    form.setValue("officerRanks", currentOfficerRanks);
-    form.setValue("officerUserIds", currentOfficerUserIds);
-    
-    // Reset only non-officer fields
+    // Reset only non-officer fields without calling form.reset()
     setPenalCodeFields([{ id: "1", penalCode: "", amountDue: "", jailTime: "" }]);
     form.setValue("penalCodes", [""]);
     form.setValue("amountsDue", [""]);
@@ -580,7 +575,6 @@ export default function ArrestForm() {
     form.setValue("description", "");
     form.setValue("timeServed", false);
     form.setValue("suspectSignature", "");
-    form.setValue("officerSignatures", [""]);  // Reset to single signature
     
     // Clear image upload
     setUploadedImage(null);
@@ -591,6 +585,16 @@ export default function ArrestForm() {
     form.setValue("courtDate", "XX/XX/XX");
     form.setValue("courtLocation", "4000 Capitol Drive, Greenville, Wisconsin 54942");
     form.setValue("courtPhone", "(262) 785-4700 ext. 7");
+    
+    // Ensure officer information is preserved
+    form.setValue("officerBadges", currentOfficerBadges);
+    form.setValue("officerUsernames", currentOfficerUsernames);
+    form.setValue("officerRanks", currentOfficerRanks);
+    form.setValue("officerUserIds", currentOfficerUserIds);
+    form.setValue("officerSignatures", currentOfficerSignatures);
+    
+    // Preserve officer fields state
+    setOfficerFields(currentOfficerFields);
   };
 
   const [showBackDialog, setShowBackDialog] = useState(false);

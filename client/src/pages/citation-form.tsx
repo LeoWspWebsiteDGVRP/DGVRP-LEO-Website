@@ -430,16 +430,10 @@ export default function CitationForm() {
     const currentOfficerRanks = form.getValues("officerRanks");
     const currentOfficerUserIds = form.getValues("officerUserIds");
     
-    // Reset the form
-    form.reset();
+    // Save current officer fields state
+    const currentOfficerFields = [...officerFields];
     
-    // Restore officer information
-    form.setValue("officerBadges", currentOfficerBadges);
-    form.setValue("officerUsernames", currentOfficerUsernames);
-    form.setValue("officerRanks", currentOfficerRanks);
-    form.setValue("officerUserIds", currentOfficerUserIds);
-    
-    // Reset only non-officer fields
+    // Reset only non-officer fields without calling form.reset()
     setPenalCodeFields([{ id: "1", penalCode: "", amountDue: ""}]);
     form.setValue("penalCodes", [""]);
     form.setValue("amountsDue", [""]);
@@ -450,6 +444,15 @@ export default function CitationForm() {
     form.setValue("violatorSignature", "");
     form.setValue("violationType", "");
     form.setValue("additionalNotes", "");
+    
+    // Ensure officer information is preserved
+    form.setValue("officerBadges", currentOfficerBadges);
+    form.setValue("officerUsernames", currentOfficerUsernames);
+    form.setValue("officerRanks", currentOfficerRanks);
+    form.setValue("officerUserIds", currentOfficerUserIds);
+    
+    // Preserve officer fields state
+    setOfficerFields(currentOfficerFields);
   };
 
   const [showBackDialog, setShowBackDialog] = useState(false);
