@@ -173,12 +173,35 @@ export default function CitationForm() {
     if (savedOfficerData) {
       try {
         const parsedData = JSON.parse(savedOfficerData);
-        if (parsedData.officerFields && parsedData.officerFields.length > 0) {
-          setOfficerFields(parsedData.officerFields);
-          form.setValue("officerBadges", parsedData.officerBadges || [""]);
-          form.setValue("officerUsernames", parsedData.officerUsernames || [""]);
-          form.setValue("officerRanks", parsedData.officerRanks || [""]);
-          form.setValue("officerUserIds", parsedData.officerUserIds || [""]);
+        if (parsedData.officerBadges && parsedData.officerBadges.length > 0) {
+          // Filter out null/undefined values and create proper officer fields
+          const validBadges = parsedData.officerBadges.filter((badge: any) => badge !== null && badge !== undefined);
+          const validUsernames = (parsedData.officerUsernames || []).filter((username: any) => username !== null && username !== undefined);
+          const validRanks = (parsedData.officerRanks || []).filter((rank: any) => rank !== null && rank !== undefined);
+          const validUserIds = (parsedData.officerUserIds || []).filter((userId: any) => userId !== null && userId !== undefined);
+          
+          if (validBadges.length > 0) {
+            // Create officer fields based on the actual number of valid entries
+            const newOfficerFields = validBadges.map((_: any, index: number) => ({
+              id: (index + 1).toString(),
+              badge: validBadges[index] || "",
+              username: validUsernames[index] || "",
+              rank: validRanks[index] || "",
+              userId: validUserIds[index] || ""
+            }));
+            
+            setOfficerFields(newOfficerFields);
+            form.setValue("officerBadges", validBadges);
+            form.setValue("officerUsernames", validUsernames.slice(0, validBadges.length));
+            form.setValue("officerRanks", validRanks.slice(0, validBadges.length));
+            form.setValue("officerUserIds", validUserIds.slice(0, validBadges.length));
+            
+            console.log('✅ Loaded officer data:', { 
+              count: newOfficerFields.length, 
+              badges: validBadges,
+              usernames: validUsernames.slice(0, validBadges.length)
+            });
+          }
         }
       } catch (error) {
         console.error('Failed to load saved officer data:', error);
@@ -188,12 +211,23 @@ export default function CitationForm() {
 
   // Function to save officer data to localStorage
   const saveOfficerData = useCallback(() => {
+    const rawBadges = form.getValues("officerBadges") || [];
+    const rawUsernames = form.getValues("officerUsernames") || [];
+    const rawRanks = form.getValues("officerRanks") || [];
+    const rawUserIds = form.getValues("officerUserIds") || [];
+    
+    // Filter out null/undefined values to prevent empty officer sections
+    const validBadges = rawBadges.filter(badge => badge !== null && badge !== undefined);
+    const validUsernames = rawUsernames.filter(username => username !== null && username !== undefined);
+    const validRanks = rawRanks.filter(rank => rank !== null && rank !== undefined);
+    const validUserIds = rawUserIds.filter(userId => userId !== null && userId !== undefined);
+    
     const officerData = {
       officerFields,
-      officerBadges: form.getValues("officerBadges"),
-      officerUsernames: form.getValues("officerUsernames"),
-      officerRanks: form.getValues("officerRanks"),
-      officerUserIds: form.getValues("officerUserIds")
+      officerBadges: validBadges,
+      officerUsernames: validUsernames,
+      officerRanks: validRanks,
+      officerUserIds: validUserIds
     };
     localStorage.setItem('lawEnforcementOfficerData', JSON.stringify(officerData));
     console.log('💾 Saved officer data to localStorage:', officerData);
