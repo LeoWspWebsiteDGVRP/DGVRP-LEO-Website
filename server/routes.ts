@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCitationSchema } from "@shared/schema";
 import { createDiscordBotService } from "./discord";
-import { initializeDiscordAuth, requireDiscordRole, AuthenticatedRequest } from "./auth";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -11,21 +10,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const discordBotToken = process.env.DISCORD_BOT_TOKEN;
   const discordChannelId = process.env.DISCORD_CHANNEL_ID;
   const discordService = (discordBotToken && discordChannelId) ? createDiscordBotService(discordBotToken, discordChannelId) : null;
-  
-  // Initialize Discord auth service
-  const discordGuildId = process.env.DISCORD_GUILD_ID;
-  const requiredRoles = process.env.REQUIRED_DISCORD_ROLES?.split(',') || ['Law Enforcement', 'Officer', 'Admin']; // Default roles
-  
-  if (discordBotToken && discordGuildId) {
-    try {
-      initializeDiscordAuth(discordBotToken, discordGuildId, requiredRoles);
-      console.log('Discord auth service initialized with required roles:', requiredRoles);
-    } catch (error) {
-      console.error('Failed to initialize Discord auth service:', error);
-    }
-  } else {
-    console.warn('Discord auth not configured - missing DISCORD_GUILD_ID or DISCORD_BOT_TOKEN');
-  }
   
   // Initialize Discord bot if configured
   if (discordService) {
@@ -38,7 +22,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Create citation
-  app.post("/api/citations", requireDiscordRole(), async (req: AuthenticatedRequest, res) => {
+  app.post("/api/citations", async (req, res) => {
     try {
       console.log("=== CITATION SUBMISSION START ===");
       console.log("Request method:", req.method);
@@ -145,7 +129,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create arrest report
-  app.post("/api/arrests", requireDiscordRole(), async (req: AuthenticatedRequest, res) => {
+  app.post("/api/arrests", async (req, res) => {
     try {
       const arrestData = req.body;
       console.log("Arrest report received:", arrestData);
